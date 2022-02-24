@@ -5,7 +5,6 @@ import shutil
 import random
 import os
 
-import tensorflow as tf
 from tensorflow import keras
 
 def download_dataset(url, save_path=""):
@@ -24,16 +23,18 @@ def download_dataset(url, save_path=""):
 
     """
 
-    file_name = url.rsplit('/', maxsplit=1)[1]
+    file_name = url.rsplit('/', maxsplit=1)[1] # gets file name from url
     save_path = pathlib.Path(save_path)
     save_path.mkdir(parents=True, exist_ok=True)
     save_path /= file_name
     
     response = requests.get(url)
 
+    # saves downloaded file
     with open(save_path, "wb") as file:
         file.write(response.content)
 
+    # extracts the downloaded tar file
     with tarfile.open(save_path) as compressed:
         compressed.extractall(save_path.parent)
 
@@ -70,7 +71,7 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1):
 
     root = pathlib.Path(dataset_path)
 
-    # delete all files in depth 0 (inside root directory) and 1 (inside sub directory)
+    # deletes all files in depth 0 (inside root directory) and 1 (inside sub directory)
     for base in root.iterdir():
         if base.is_file(): 
             base.unlink()
