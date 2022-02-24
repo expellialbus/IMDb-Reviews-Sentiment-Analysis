@@ -122,9 +122,9 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1, return_text_only
 
 def vectorize(datasets, 
               text_only_dataset, 
+              vocab_size,
+              max_length, 
               ngrams=2, 
-              vocab_size=3e4, 
-              max_length=400, 
               output_mode="int", 
               num_parallel_calls=None, 
               return_vectorizer=True):
@@ -176,6 +176,9 @@ def vectorize(datasets,
                                            max_tokens=vocab_size, 
                                            output_sequence_length=max_length, 
                                            output_mode=output_mode)
+
+    text_vectorization.adapt(text_only_dataset)
+    
     vectorized_datasets = list()
     for dataset in datasets:
         vectorized_datasets.append(dataset.map(lambda x, y: (text_vectorization(x), y), 
