@@ -6,6 +6,7 @@ import random
 import os
 
 from tensorflow import keras
+from tensorflow.keras.layers import TextVectorization
 
 def download_dataset(url, save_path=""):
     """
@@ -38,7 +39,7 @@ def download_dataset(url, save_path=""):
     with tarfile.open(save_path) as compressed:
         compressed.extractall(save_path.parent)
 
-def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1):
+def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1, return_text_only_train_set=True):
     """
     Reads dataset from the specified path and then creates the validation set
     according as speficied size
@@ -48,24 +49,31 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1):
     dataset_path : str, pathlib.Path
                    Dataset path which contains the downloaded dataset
 
-    batch_size : int, optional
-                 Batch size for creating datasets, default=32
+    batch_size : int, default=32
+                 Batch size for creating datasets
 
-    val_ratio : float, optional
+    val_ratio : float, default=0.1 (10% of train set)
                Validation set ratio which is used to derive validation set 
                from both Train set and Test set
 
+    return_text_only_train_set : bool, optional, default=True
+                                 Condition to return a text only dataset (without labels) version of train set
+                                 Text only dataset may be useful to adapt/fit vectorizer or tokenizer
+                                 
+
     Returns
     -------
-    train_set : BatchDataset, dtype=tf.int32
-    val_set :  BatchDataset, dtype=tf.int32
-    test_set : BatchDataset, dtype=tf.int32
+    train_set : BatchDataset, (dtype=tf.string, dtype=tf.int32)
+    val_set :  BatchDataset, (dtype=tf.string, dtype=tf.int32)
+    test_set : BatchDataset, (dtype=tf.string, dtype=tf.int32)
+    text_only_set : MapDataset, dtype=tf.string
 
     Note
     ----
     train_set : contains 22500 data sample belonging to 2 classes
     val_set : contains 4910 data sample belonging to 2 classes
     test_set : contains 22500 data sample belonging to 2 classes
+    text_only_set : only returned if return_text_only_train_set equals to True
 
     """
 
@@ -105,4 +113,75 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1):
     val_set = keras.utils.text_dataset_from_directory(val_dir, batch_size=batch_size)
     test_set = keras.utils.text_dataset_from_directory(test_dir, batch_size=batch_size)
 
-    return train_set, val_set, test_set
+    if return_text_only_train_set:
+        text_only_set = train_set.map(lambda x, y: x)
+
+        return train_set, val_set, test_set, text_only_set
+    else:
+        return train_set, val_set, test_set
+
+def vectorize(datasets, 
+              text_only_dataset, 
+              ngrams=2, 
+              vocab_size=3e4, 
+              max_length=400, 
+              output_mode="int", 
+              num_parallel_calls=None, 
+              return_vectorizer=True):
+    """
+    Vectorizes the datasets according as the specified parameters
+
+    Parameters
+    ----------
+    datasets : iterable object
+               Contains datasets as order unaware
+
+    text_only_dataset : tf.data.Dataset, tf.string
+                        A dataset just contains inputs (not labels)
+
+    ngrams : int, default=2
+              Number of words will be contained in a token
+    
+    vocab_size : int, default=3e4
+                 Vocabulary size
+                
+    max_length : int, default=400
+                 Max length per review (just works if output mode is "int")
+                 A review longer than max length will be truncated
+                 Lower than max length will be padded with zeros
+
+    output_mode : str, default=int
+                  Generated dataset type
+
+    num_parallel_calls : int, optional
+                         Number of core will be used during text vectorization process
+
+    return_vectorizer : bool, default=True
+                        Condition to return vectorizer object
+                        If it is True, vectorizer object used during vectorization process will be returned
+                        Otherwise the object is not returned 
+
+    Returns 
+    -------
+    vectorized_datasets : list object (at the order of passed datasets)
+    text_vectorization : tf.keras.layers.TextVectorization (according as specified arguments), optional
+
+    Notes
+    -----
+    For more info about default arguments, see the tf.keras.layers.TextVectorization layer 
+
+    """
+
+    text_vectorization = TextVectorization(ngrams=ngrams, 
+                                           max_tokens=vocab_size, 
+                                           output_sequence_length=max_length, 
+                                           output_mode=output_mode)
+    vectorized_datasets = list()
+    for dataset in datasets:
+        vectorized_datasets.append(dataset.map(lambda x, y: (text_vectorization(x), y), 
+                                               num_parallel_calls=num_parallel_calls).prefetch(1))
+        
+    if return_vectorizer:
+        return vectorized_datasets, text_vectorization
+    else:
+        return vectorized_datasets
