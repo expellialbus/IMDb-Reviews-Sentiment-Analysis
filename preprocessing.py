@@ -53,8 +53,8 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1, return_text_only
                  Batch size for creating datasets
 
     val_ratio : float, default=0.1 (10% of train set)
-               Validation set ratio which is used to derive validation set 
-               from both Train set and Test set
+                Validation set ratio which is used to derive validation set 
+                from both Train set and Test set
 
     return_text_only_train_set : bool, optional, default=True
                                  Condition to return a text only dataset (without labels) version of train set
@@ -70,10 +70,10 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1, return_text_only
 
     Note
     ----
-    train_set : contains 22500 data sample belonging to 2 classes
-    val_set : contains 4910 data sample belonging to 2 classes
-    test_set : contains 22500 data sample belonging to 2 classes
     text_only_set : only returned if return_text_only_train_set equals to True
+    train_set : contains 22500 data sample belonging to 2 classes
+    val_set : contains 4913 data sample belonging to 2 classes
+    test_set : contains 22500 data sample belonging to 2 classes
 
     """
 
@@ -116,7 +116,7 @@ def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1, return_text_only
     if return_text_only_train_set:
         text_only_set = train_set.map(lambda x, y: x)
 
-        return train_set, val_set, test_set, text_only_set
+        return text_only_set, train_set, val_set, test_set
     else:
         return train_set, val_set, test_set
 
@@ -124,7 +124,6 @@ def vectorize(datasets,
               text_only_dataset, 
               vocab_size,
               max_length, 
-              ngrams=2, 
               output_mode="int", 
               num_parallel_calls=None, 
               return_vectorizer=True):
@@ -138,9 +137,6 @@ def vectorize(datasets,
 
     text_only_dataset : tf.data.Dataset, tf.string
                         A dataset just contains inputs (not labels)
-
-    ngrams : int, default=2
-              Number of words will be contained in a token
     
     vocab_size : int, default=3e4
                  Vocabulary size
@@ -172,8 +168,7 @@ def vectorize(datasets,
 
     """
 
-    text_vectorization = TextVectorization(ngrams=ngrams, 
-                                           max_tokens=vocab_size, 
+    text_vectorization = TextVectorization(max_tokens=vocab_size, 
                                            output_sequence_length=max_length, 
                                            output_mode=output_mode)
 
