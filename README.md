@@ -24,15 +24,17 @@ Contains codes for building and training the the model.
 
 ## What does the [preprocessing.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/preprocessing.py) file do?
 
-In short, as the name suggests, the [preprocessing.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/preprocessing.py) file contains some preprocess functions for the [dataset](https://github.com/recep-yildirimIMDb-Reviews-Sentiment-Analysis/blob/master/dataset/aclImdb_v1.tar.gz).
+In short, as the name suggests, the [preprocessing.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/preprocessing.py) file contains some preprocess functions for the [dataset](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/dataset/aclImdb_v1.tar.gz).
 
 It offers a method to download the [dataset](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/dataset/aclImdb_v1.tar.gz). After complete dowloading, it decompresses the file and save it to the path specified by a parameter. Another function inside of the [preprocessing.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/preprocessing.py) file prepares (removes unnecessary files/folder, splits the train data to a validation data by the ratio that controlled with a parameter) the dataset that read from the specified path and returns it as splitted to train, test and validation sets. Final function, basically applies the vectorization operation to the dataset.
 
-**Note:** \*For more information about the functions in the [preprocessing.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/preprocessing.py) file, please read the docs in the file.
+**Note:** For more information about the functions in the [preprocessing.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/preprocessing.py) file, please read the docs in the file.
 
 ## How about the [train.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/train.py) file?
 
 It contains a function that creates and returns the model, personalized by the parameters. Also another utility function that can be useful when you need to serve your model in a deployment environment. This function basically merges the preprocessing layers and the model that you created into a new model that can handle the preprocessing operations on the fly (without the need for any preprocessing operations) and returns this brand new model. It is very useful when you want to maintain your preprocessing layers in one place.
+
+**Note:** For more information about the functions in the [train.py](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/blob/master/train.py) file, please read the docs in the file.
 
 # Test Results
 
