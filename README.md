@@ -2,7 +2,7 @@
 
 This project aims to classify Imdb reviews according to their sentiments. The way that it tries to solve this problem is to train a Bidirectional LSTM with the dataset in [this link](https://ai.stanford.edu/~amaas/data/sentiment). The dataset can also be found under the _dataset_ folder of the project.
 
-Files and folders of the project.
+### Files and folders of the project: 
 
 > [model](https://github.com/recep-yildirim/IMDb-Reviews-Sentiment-Analysis/tree/master/model)
 
