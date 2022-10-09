@@ -37,7 +37,26 @@ def download_dataset(url, save_path=""):
 
     # extracts the downloaded tar file
     with tarfile.open(save_path) as compressed:
-        compressed.extractall(save_path.parent)
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(compressed, save_path.parent)
 
 def prepare_dataset(dataset_path, batch_size=32, val_ratio=0.1, return_text_only_train_set=True):
     """
